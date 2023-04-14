@@ -3,6 +3,26 @@ import 'dart:async';
 
 import 'dart:typed_data' show Uint8List;
 
+enum WebSocketState {
+  open,
+  closed,
+  closing,
+  unknown;
+
+  static WebSocketState fromInt(int state) {
+    switch (state) {
+      case WebSocket.open:
+        return WebSocketState.open;
+      case WebSocket.closed:
+        return WebSocketState.closed;
+      case WebSocket.closing:
+        return WebSocketState.closing;
+      default:
+        return WebSocketState.unknown;
+    }
+  }
+}
+
 class WebSocketConnection {
   const WebSocketConnection(this._socket, this._connectionInfo);
 
