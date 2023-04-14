@@ -4,12 +4,12 @@ import 'dart:async';
 import 'dart:typed_data' show Uint8List;
 
 class WebSocketConnection {
-  const WebSocketConnection(this._webSocket, this._connectionInfo);
+  const WebSocketConnection(this._socket, this._connectionInfo);
 
-  final WebSocket _webSocket;
+  final WebSocket _socket;
   final HttpConnectionInfo _connectionInfo;
 
-  WebSocket get messages => _webSocket;
+  WebSocket get socket => _socket;
 
   int get localPort => _connectionInfo.localPort;
   int get remotePort => _connectionInfo.remotePort;
@@ -17,11 +17,11 @@ class WebSocketConnection {
   String get remoteAddress => _connectionInfo.remoteAddress.address;
   bool get isLinkLocal => _connectionInfo.remoteAddress.isLinkLocal;
 
-  void send(String message) => _webSocket.add(message);
+  void send(String message) => _socket.add(message);
 
-  void sendBytes(Uint8List bytes) => _webSocket.add(bytes);
+  void sendBytes(Uint8List bytes) => _socket.add(bytes);
 
-  void close() => _webSocket.close();
+  void close() => _socket.close();
 }
 
 class WebSocketServer extends Stream<WebSocketConnection> {
