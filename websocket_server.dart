@@ -37,6 +37,8 @@ class WebSocketConnection {
   String get remoteAddress => _connectionInfo.remoteAddress.address;
   bool get isLinkLocal => _connectionInfo.remoteAddress.isLinkLocal;
 
+  WebSocketState get state => WebSocketState.fromInt(_socket.readyState);
+
   void send(String message) => _socket.add(message);
 
   void sendBytes(Uint8List bytes) => _socket.add(bytes);
