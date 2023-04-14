@@ -48,13 +48,13 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   }) =>
       WebSocketServer._(address, port, backlog, v6Only, shared);
 
-  final bool Function(HttpRequest) isWebSocketUpgradeRequest =
+  final bool Function(HttpRequest) _isWebSocketUpgradeRequest =
       WebSocketTransformer.isUpgradeRequest;
 
   void _acceptConnections() async {
     await for (final request in await _httpServer) {
       final connectionInfo = request.connectionInfo;
-      if (isWebSocketUpgradeRequest(request) && connectionInfo != null) {
+      if (_isWebSocketUpgradeRequest(request) && connectionInfo != null) {
         final webSocket = await WebSocketTransformer.upgrade(request);
         _controller.add(WebSocketConnection(webSocket, connectionInfo));
       } else {
