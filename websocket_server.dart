@@ -91,14 +91,14 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     }
   }
 
-  static void serve(
+  static StreamSubscription<WebSocketConnection> serve(
     WebSocketHandler handler, {
     int? port,
     InternetAddress? address,
   }) {
     final bindPort = port ?? _randomPort;
     final bindAddress = address ?? InternetAddress.anyIPv6;
-    WebSocketServer.bind(bindAddress, bindPort).listen(handler);
+    return WebSocketServer.bind(bindAddress, bindPort).listen(handler);
   }
 
   @override
