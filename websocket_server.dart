@@ -1,7 +1,9 @@
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data' show Uint8List;
+
+typedef WebSocketHandler = void Function(WebSocketConnection);
 
 enum WebSocketState {
   open,
@@ -87,6 +89,16 @@ class WebSocketServer extends Stream<WebSocketConnection> {
         request.response.close();
       }
     }
+  }
+
+  static void serve(
+    WebSocketHandler handler, {
+    int? port,
+    InternetAddress? address,
+  }) {
+    final bindPort = port ?? _randomPort;
+    final bindAddress = address ?? InternetAddress.anyIPv6;
+    WebSocketServer.bind(bindAddress, bindPort).listen(handler);
   }
 
   @override
