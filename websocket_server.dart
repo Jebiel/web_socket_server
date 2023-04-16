@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:async';
-
+import 'dart:math';
 import 'dart:typed_data' show Uint8List;
 
 enum WebSocketState {
@@ -49,6 +49,10 @@ class WebSocketConnection {
 class WebSocketServer extends Stream<WebSocketConnection> {
   late Future<HttpServer> _httpServer;
   final _controller = StreamController<WebSocketConnection>();
+
+  // Returns a random integer in the range 49152 to 65535, which is the
+  // ephemeral port range suggested by IANA and RFC 6335.
+  static int get _randomPort => Random().nextInt(65535 - 49152 + 1) + 49152;
 
   WebSocketServer._(address, int port, int backlog, bool v6Only, bool shared) {
     _httpServer = HttpServer.bind(
