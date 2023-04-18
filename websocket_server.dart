@@ -49,11 +49,14 @@ class WebSocketConnection {
 }
 
 class WebSocketServer extends Stream<WebSocketConnection> {
+  /// The HttpServer instance that this WebSocketServer is bound to.
   late Future<HttpServer> _httpServer;
+
+  /// StreamController for managing WebSocket connections
   final _controller = StreamController<WebSocketConnection>();
 
-  // Returns a random integer in the range 49152 to 65535, which is the
-  // ephemeral port range suggested by IANA and RFC 6335.
+  /// Returns a random integer in the range 49152 to 65535, which is the
+  /// ephemeral port range suggested by IANA and RFC 6335.
   static int get _randomPort => Random().nextInt(65535 - 49152 + 1) + 49152;
 
   WebSocketServer._(address, int port, int backlog, bool v6Only, bool shared) {
@@ -76,6 +79,8 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   }) =>
       WebSocketServer._(address, port, backlog, v6Only, shared);
 
+  /// Method for accepting incoming connections through the [HttpServer] and
+  /// upgrading them to WebSocket connections.
   void _acceptConnections() async {
     await for (final request in await _httpServer) {
       final connectionInfo = request.connectionInfo;
@@ -91,6 +96,12 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     }
   }
 
+  /// Static method for serving a WebSocketHandler on a specified address and
+  /// port. [serve] both binds and listens, and returns the resulting
+  /// [StreamSubscription].
+  ///
+  /// [port] defaults to random port within the range 49152 to 65535.
+  /// [address] defaults to [InternetAddress.anyIPv6], which covers IPv4 aswell.
   static StreamSubscription<WebSocketConnection> serve(
     WebSocketHandler handler, {
     int? port,
@@ -101,6 +112,8 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     return WebSocketServer.bind(bindAddress, bindPort).listen(handler);
   }
 
+  /// Forward this Stream class' listen method, to the listen method of it's
+  /// local StreamController instance [_controller].
   @override
   StreamSubscription<WebSocketConnection> listen(
     void Function(WebSocketConnection conn)? onData, {
