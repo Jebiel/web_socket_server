@@ -66,8 +66,34 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
-  }) : _httpServer = HttpServer.bind(address, port,
-            backlog: backlog, v6Only: v6Only, shared: shared) {
+  }) : _httpServer = HttpServer.bind(
+          address,
+          port,
+          backlog: backlog,
+          v6Only: v6Only,
+          shared: shared,
+        ) {
+    _acceptConnections();
+  }
+
+  /// Constructor for creating a secure WebSocketServer (wss)
+  WebSocketServer.bindSecure(
+    dynamic address,
+    int port,
+    SecurityContext context, {
+    int backlog = 0,
+    bool v6Only = false,
+    bool shared = false,
+    bool requestClientCertificate = false,
+  }) : _httpServer = HttpServer.bindSecure(
+          address,
+          port,
+          context,
+          backlog: backlog,
+          v6Only: v6Only,
+          shared: shared,
+          requestClientCertificate: requestClientCertificate,
+        ) {
     _acceptConnections();
   }
 
