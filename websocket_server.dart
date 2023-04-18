@@ -59,25 +59,17 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   /// ephemeral port range suggested by IANA and RFC 6335.
   static int get _randomPort => Random().nextInt(65535 - 49152 + 1) + 49152;
 
-  WebSocketServer._(address, int port, int backlog, bool v6Only, bool shared) {
-    _httpServer = HttpServer.bind(
-      address,
-      port,
-      backlog: backlog,
-      v6Only: v6Only,
-      shared: shared,
-    );
-    _acceptConnections();
-  }
-
-  factory WebSocketServer.bind(
+  /// Constructor for binding the WebSocketServer to an address and port
+  WebSocketServer.bind(
     dynamic address,
     int port, {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
-  }) =>
-      WebSocketServer._(address, port, backlog, v6Only, shared);
+  }) : _httpServer = HttpServer.bind(address, port,
+            backlog: backlog, v6Only: v6Only, shared: shared) {
+    _acceptConnections();
+  }
 
   /// Method for accepting incoming connections through the [HttpServer] and
   /// upgrading them to WebSocket connections.
