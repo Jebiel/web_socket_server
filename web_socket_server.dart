@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'web_socket_connection.dart';
 
@@ -12,10 +11,6 @@ class WebSocketServer extends Stream<WebSocketConnection> {
 
   /// StreamController for managing WebSocket connections
   final _controller = StreamController<WebSocketConnection>();
-
-  /// Returns a random integer in the range 49152 to 65535, which is the
-  /// ephemeral port range suggested by IANA and RFC 6335.
-  static int get _randomPort => Random().nextInt(65535 - 49152 + 1) + 49152;
 
   /// Constructor for binding the WebSocketServer to an address and port
   WebSocketServer.bind(
@@ -69,22 +64,6 @@ class WebSocketServer extends Stream<WebSocketConnection> {
         request.response.close();
       }
     }
-  }
-
-  /// Static method for serving a WebSocketHandler on a specified address and
-  /// port. [serve] both binds and listens, and returns the resulting
-  /// [StreamSubscription].
-  ///
-  /// [port] defaults to random port within the range 49152 to 65535.
-  /// [address] defaults to [InternetAddress.anyIPv6], which covers IPv4 aswell.
-  static StreamSubscription<WebSocketConnection> serve(
-    WebSocketHandler handler, {
-    int? port,
-    InternetAddress? address,
-  }) {
-    final bindPort = port ?? _randomPort;
-    final bindAddress = address ?? InternetAddress.anyIPv6;
-    return WebSocketServer.bind(bindAddress, bindPort).listen(handler);
   }
 
   /// Forward this Stream class' listen method, to the listen method of it's
