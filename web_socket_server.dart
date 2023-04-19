@@ -66,7 +66,6 @@ class WebSocketServer extends Stream<WebSocketConnection> {
         _controller.add(WebSocketConnection(webSocket, connectionInfo));
       } else {
         request.response.statusCode = HttpStatus.forbidden;
-        request.response.reasonPhrase = "Only WebSocket connections allowed";
         request.response.close();
       }
     }
