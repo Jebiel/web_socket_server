@@ -26,26 +26,24 @@ enum WebSocketState {
 }
 
 class WebSocketConnection {
-  const WebSocketConnection(this._socket, this._connectionInfo);
+  WebSocketConnection(this.socket, HttpConnectionInfo _connectionInfo)
+      : localPort = _connectionInfo.localPort,
+        remotePort = _connectionInfo.remotePort,
+        remoteAddress = _connectionInfo.remoteAddress,
+        state = WebSocketState.fromInt(socket.readyState);
 
-  final WebSocket _socket;
-  final HttpConnectionInfo _connectionInfo;
+  final WebSocket socket;
+  final WebSocketState state;
 
-  WebSocket get socket => _socket;
+  final int localPort;
+  final int remotePort;
+  final InternetAddress remoteAddress;
 
-  int get localPort => _connectionInfo.localPort;
-  int get remotePort => _connectionInfo.remotePort;
-  String get remoteHost => _connectionInfo.remoteAddress.host;
-  String get remoteAddress => _connectionInfo.remoteAddress.address;
-  bool get isLinkLocal => _connectionInfo.remoteAddress.isLinkLocal;
+  void send(String message) => socket.add(message);
 
-  WebSocketState get state => WebSocketState.fromInt(_socket.readyState);
+  void sendBytes(Uint8List bytes) => socket.add(bytes);
 
-  void send(String message) => _socket.add(message);
-
-  void sendBytes(Uint8List bytes) => _socket.add(bytes);
-
-  void close() => _socket.close();
+  void close() => socket.close();
 }
 
 class WebSocketServer extends Stream<WebSocketConnection> {
