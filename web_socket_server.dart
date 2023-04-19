@@ -1,50 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data' show Uint8List;
+
+import 'web_socket_connection.dart';
 
 typedef WebSocketHandler = void Function(WebSocketConnection);
-
-enum WebSocketState {
-  open,
-  closed,
-  closing,
-  unknown;
-
-  static WebSocketState fromInt(int state) {
-    switch (state) {
-      case WebSocket.open:
-        return WebSocketState.open;
-      case WebSocket.closed:
-        return WebSocketState.closed;
-      case WebSocket.closing:
-        return WebSocketState.closing;
-      default:
-        return WebSocketState.unknown;
-    }
-  }
-}
-
-class WebSocketConnection {
-  WebSocketConnection(this.socket, HttpConnectionInfo _connectionInfo)
-      : localPort = _connectionInfo.localPort,
-        remotePort = _connectionInfo.remotePort,
-        remoteAddress = _connectionInfo.remoteAddress,
-        state = WebSocketState.fromInt(socket.readyState);
-
-  final WebSocket socket;
-  final WebSocketState state;
-
-  final int localPort;
-  final int remotePort;
-  final InternetAddress remoteAddress;
-
-  void send(String message) => socket.add(message);
-
-  void sendBytes(Uint8List bytes) => socket.add(bytes);
-
-  void close() => socket.close();
-}
 
 class WebSocketServer extends Stream<WebSocketConnection> {
   /// The HttpServer instance that this WebSocketServer is bound to.
