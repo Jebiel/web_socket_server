@@ -6,6 +6,8 @@ import 'web_socket_connection.dart';
 typedef WebSocketHandler = void Function(WebSocketConnection);
 
 class WebSocketServer extends Stream<WebSocketConnection> {
+  final Duration? pingInterval;
+
   /// The HttpServer instance that this WebSocketServer is bound to.
   late Future<HttpServer> _httpServer;
 
@@ -19,6 +21,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
+    this.pingInterval,
   }) : _httpServer = HttpServer.bind(
           address,
           port,
@@ -37,6 +40,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
+    this.pingInterval,
     bool requestClientCertificate = false,
   }) : _httpServer = HttpServer.bindSecure(
           address,
@@ -58,6 +62,9 @@ class WebSocketServer extends Stream<WebSocketConnection> {
       final isUpgradeRequest = WebSocketTransformer.isUpgradeRequest(request);
       if (isUpgradeRequest && connectionInfo != null) {
         final webSocket = await WebSocketTransformer.upgrade(request);
+        if (pingInterval != null) {
+          webSocket.pingInterval = pingInterval!;
+        }
         _controller.add(WebSocketConnection(webSocket, connectionInfo));
       } else {
         request.response.statusCode = HttpStatus.forbidden;
