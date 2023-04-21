@@ -76,9 +76,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
         if (pingInterval != null) {
           webSocket.pingInterval = pingInterval!;
         }
-        _controller.add(
-          WebSocketConnection(webSocket, request.cookies, connectionInfo),
-        );
+        _controller.add(WebSocketConnection(webSocket, request));
       } else {
         request.response.statusCode = HttpStatus.forbidden;
         request.response.close();
