@@ -30,5 +30,5 @@ class WebSocketConnection {
 
   void sendBytes(Uint8List bytes) => socket.add(bytes);
 
-  void close() => socket.close();
+  void close([int? code, String? reason]) => socket.close(code, reason);
 }
