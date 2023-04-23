@@ -2,17 +2,22 @@ import 'dart:async';
 import 'dart:io';
 
 import 'web_socket_connection.dart';
+import 'web_socket_connection_info.dart';
 
 typedef WebSocketHandler = void Function(WebSocketConnection);
 
 class WebSocketServer extends Stream<WebSocketConnection> {
   final Duration? pingInterval;
-
   final CompressionOptions compression;
   final dynamic Function(List<String>)? protocolSelector;
 
   /// The HttpServer instance that this WebSocketServer is bound to.
   late Future<HttpServer> _httpServer;
+
+  /// A function that is called when a new connection is established.
+  /// If the function returns true, the connection is accepted, otherwise it is
+  /// rejected.
+  final bool Function(WebSocketConnectionInfo)? authorize;
 
   /// StreamController for managing WebSocket connections
   final _controller = StreamController<WebSocketConnection>();
@@ -24,6 +29,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
+    this.authorize,
     this.pingInterval,
     this.protocolSelector,
     this.compression = CompressionOptions.compressionDefault,
@@ -45,6 +51,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
+    this.authorize,
     this.pingInterval,
     bool requestClientCertificate = false,
     this.protocolSelector,
@@ -76,7 +83,13 @@ class WebSocketServer extends Stream<WebSocketConnection> {
         if (pingInterval != null) {
           webSocket.pingInterval = pingInterval!;
         }
-        _controller.add(WebSocketConnection(webSocket, request));
+        final connection = WebSocketConnection(webSocket, request);
+        if (authorize == null || authorize!(connection.info)) {
+          _controller.add(connection);
+        } else {
+          request.response.statusCode = HttpStatus.unauthorized;
+          request.response.close();
+        }
       } else {
         request.response.statusCode = HttpStatus.forbidden;
         request.response.close();

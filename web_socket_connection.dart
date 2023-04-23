@@ -1,28 +1,18 @@
 import 'dart:io';
 import 'dart:typed_data' show Uint8List;
 
+import 'web_socket_connection_info.dart';
 import 'web_socket_state.dart';
 
 class WebSocketConnection {
   WebSocketConnection(
     this.socket,
-    HttpRequest _request,
-  )   : cookies = _request.cookies,
-        headers = _request.headers,
-        queryParameters = _request.uri.queryParameters,
-        localPort = _request.connectionInfo!.localPort,
-        remotePort = _request.connectionInfo!.remotePort,
-        remoteAddress = _request.connectionInfo!.remoteAddress;
+    HttpRequest request,
+  ) : info = WebSocketConnectionInfo.fromHttpRequest(request);
 
   final WebSocket socket;
 
-  final int localPort;
-  final int remotePort;
-  final InternetAddress remoteAddress;
-
-  final HttpHeaders headers;
-  final List<Cookie> cookies;
-  final Map<String, String> queryParameters;
+  final WebSocketConnectionInfo info;
 
   WebSocketState get state => WebSocketState.fromInt(socket.readyState);
 
