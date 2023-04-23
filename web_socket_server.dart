@@ -4,7 +4,7 @@ import 'dart:io';
 import 'web_socket_connection.dart';
 import 'web_socket_connection_info.dart';
 
-typedef WebSocketHandler = void Function(WebSocketConnection);
+typedef AuthCallback = bool Function(WebSocketConnectionInfo);
 
 class WebSocketServer extends Stream<WebSocketConnection> {
   final Duration? pingInterval;
@@ -17,7 +17,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   /// A function that is called when a new connection is established.
   /// If the function returns true, the connection is accepted, otherwise it is
   /// rejected.
-  final bool Function(WebSocketConnectionInfo)? authorize;
+  final AuthCallback? authorize;
 
   /// StreamController for managing WebSocket connections
   final _controller = StreamController<WebSocketConnection>();
