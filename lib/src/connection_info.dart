@@ -3,7 +3,7 @@ import 'dart:io';
 class WebSocketConnectionInfo {
   WebSocketConnectionInfo(this._request);
 
-  HttpRequest _request;
+  final HttpRequest _request;
 
   late final uri = _request.uri;
   late final headers = _request.headers;

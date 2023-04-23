@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'web_socket_connection.dart';
+import 'connection.dart';
 import 'connection_info.dart';
 
 typedef AuthCallback = bool Function(WebSocketConnectionInfo);
@@ -22,7 +22,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   final dynamic Function(List<String>)? protocolSelector;
 
   /// The HttpServer instance that this WebSocketServer is bound to.
-  late Future<HttpServer> _httpServer;
+  late final Future<HttpServer> _httpServer;
 
   /// A function that is called when a new connection is established.
   /// If the function returns true, the connection is accepted, otherwise it is

@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data' show Uint8List;
 
+import 'package:web_socket_server/src/state.dart';
+
 import 'connection_info.dart';
-import 'web_socket_state.dart';
 
 class WebSocketConnection {
   WebSocketConnection(
