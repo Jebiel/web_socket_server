@@ -8,7 +8,7 @@ class WebSocketConnection {
   WebSocketConnection(
     this.socket,
     HttpRequest request,
-  ) : info = WebSocketConnectionInfo.fromHttpRequest(request);
+  ) : info = WebSocketConnectionInfo(request);
 
   final WebSocket socket;
 

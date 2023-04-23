@@ -1,7 +1,7 @@
 import 'dart:io';
 
 class WebSocketConnectionInfo {
-  WebSocketConnectionInfo.fromHttpRequest(this._request);
+  WebSocketConnectionInfo(this._request);
 
   HttpRequest _request;
 
