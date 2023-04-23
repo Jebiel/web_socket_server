@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'web_socket_connection.dart';
-import 'web_socket_connection_info.dart';
+import 'connection_info.dart';
 
 typedef AuthCallback = bool Function(WebSocketConnectionInfo);
 
