@@ -26,7 +26,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
 
   /// A function that is called when a new connection is established.
   /// If the function returns true, the connection is accepted, otherwise it is
-  /// rejected.
+  /// rejected. If the function is null, all connections are accepted.
   final AuthCallback? authorize;
 
   /// StreamController for managing WebSocket connections
