@@ -4,6 +4,7 @@ import 'dart:io';
 import 'connection.dart';
 import 'connection_info.dart';
 
+typedef ProtocolSelector = dynamic Function(List<String>);
 typedef AuthCallback = bool Function(WebSocketConnectionInfo);
 
 class WebSocketServer extends Stream<WebSocketConnection> {
@@ -19,7 +20,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   /// If null, the first protocol in the client's list of supported protocols
   /// is selected. If the client does not support any of the server's
   /// protocols, the connection is rejected.
-  final dynamic Function(List<String>)? protocolSelector;
+  final ProtocolSelector? _protocolSelector;
 
   /// The HttpServer instance that this WebSocketServer is bound to.
   late final Future<HttpServer> _httpServer;
@@ -41,9 +42,10 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     bool shared = false,
     AuthCallback? authorize,
     this.pingInterval,
-    this.protocolSelector,
+    ProtocolSelector? protocolSelector,
     this.compression = CompressionOptions.compressionDefault,
   })  : _authorize = authorize,
+        _protocolSelector = protocolSelector,
         _httpServer = HttpServer.bind(
           address,
           port,
@@ -66,9 +68,10 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     AuthCallback? authorize,
     this.pingInterval,
     bool requestClientCertificate = false,
-    this.protocolSelector,
+    ProtocolSelector? protocolSelector,
     this.compression = CompressionOptions.compressionDefault,
   })  : _authorize = authorize,
+        _protocolSelector = protocolSelector,
         _httpServer = HttpServer.bindSecure(
           address,
           port,
@@ -91,7 +94,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
         final webSocket = await WebSocketTransformer.upgrade(
           request,
           compression: compression,
-          protocolSelector: protocolSelector,
+          protocolSelector: _protocolSelector,
         );
         if (pingInterval != null) {
           webSocket.pingInterval = pingInterval!;
