@@ -27,7 +27,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   /// A function that is called when a new connection is established.
   /// If the function returns true, the connection is accepted, otherwise it is
   /// rejected. If the function is null, all connections are accepted.
-  final AuthCallback? authorize;
+  final AuthCallback? _authorize;
 
   /// StreamController for managing WebSocket connections
   final _controller = StreamController<WebSocketConnection>();
@@ -39,11 +39,12 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
-    this.authorize,
+    AuthCallback? authorize,
     this.pingInterval,
     this.protocolSelector,
     this.compression = CompressionOptions.compressionDefault,
-  }) : _httpServer = HttpServer.bind(
+  })  : _authorize = authorize,
+        _httpServer = HttpServer.bind(
           address,
           port,
           backlog: backlog,
@@ -62,12 +63,13 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
-    this.authorize,
+    AuthCallback? authorize,
     this.pingInterval,
     bool requestClientCertificate = false,
     this.protocolSelector,
     this.compression = CompressionOptions.compressionDefault,
-  }) : _httpServer = HttpServer.bindSecure(
+  })  : _authorize = authorize,
+        _httpServer = HttpServer.bindSecure(
           address,
           port,
           context,
@@ -95,7 +97,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
           webSocket.pingInterval = pingInterval!;
         }
         final connection = WebSocketConnection(webSocket, request);
-        if (authorize == null || authorize!(connection.info)) {
+        if (_authorize == null || _authorize!(connection.info)) {
           _controller.add(connection);
         } else {
           request.response.statusCode = HttpStatus.unauthorized;
