@@ -102,7 +102,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
           compression: compression,
           protocolSelector: _protocolSelector,
         );
-        if (pingInterval != null) {
+        if (pingInterval != null && Duration.zero < pingInterval!) {
           webSocket.pingInterval = pingInterval!;
         }
         final connection = WebSocketConnection(webSocket, request);
