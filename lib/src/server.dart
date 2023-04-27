@@ -8,6 +8,10 @@ typedef ProtocolSelector = dynamic Function(List<String>);
 typedef AuthCallback = bool Function(WebSocketConnectionInfo);
 
 class WebSocketServer extends Stream<WebSocketConnection> {
+  /// The maximum time that may pass without sending or receiving a message on
+  /// a WebSocket connection before it is closed due to idleness.
+  final Duration? idleTimeout;
+
   /// The interval at which ping messages are sent to the client.
   /// If null, no ping messages are sent.
   final Duration? pingInterval;
@@ -41,6 +45,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     bool v6Only = false,
     bool shared = false,
     AuthCallback? authorize,
+    this.idleTimeout,
     this.pingInterval,
     ProtocolSelector? protocolSelector,
     this.compression = CompressionOptions.compressionDefault,
@@ -66,6 +71,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     bool v6Only = false,
     bool shared = false,
     AuthCallback? authorize,
+    this.idleTimeout,
     this.pingInterval,
     bool requestClientCertificate = false,
     ProtocolSelector? protocolSelector,
