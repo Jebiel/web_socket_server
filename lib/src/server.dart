@@ -39,6 +39,12 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   /// StreamController for managing WebSocket connections
   final _controller = StreamController<WebSocketConnection>();
 
+  /// This is a convenience getter for getting the [StreamController]'s stream,
+  /// with or without a timeout, based on the presence of [idleTimeout].
+  Stream<WebSocketConnection> get _stream => idleTimeout == null
+      ? _controller.stream
+      : _controller.stream.timeout(idleTimeout!, onTimeout: (s) => s.close());
+
   /// Constructor for creating a WebSocketServer instance.
   WebSocketServer.bind(
     dynamic address,
@@ -128,7 +134,7 @@ class WebSocketServer extends Stream<WebSocketConnection> {
     VoidCallback? onDone,
     bool? cancelOnError,
   }) =>
-      _controller.stream.listen(
+      _stream.listen(
         onData,
         onError: onError,
         onDone: onDone,
