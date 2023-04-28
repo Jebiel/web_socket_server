@@ -4,8 +4,10 @@ import 'dart:io';
 import 'connection.dart';
 import 'connection_info.dart';
 
+typedef VoidCallback = void Function();
 typedef ProtocolSelector = dynamic Function(List<String>);
 typedef AuthCallback = bool Function(WebSocketConnectionInfo);
+typedef ConnectionHandler = void Function(WebSocketConnection conn);
 
 class WebSocketServer extends Stream<WebSocketConnection> {
   /// The maximum time that may pass without sending or receiving a message on
@@ -121,9 +123,9 @@ class WebSocketServer extends Stream<WebSocketConnection> {
 
   @override
   StreamSubscription<WebSocketConnection> listen(
-    void Function(WebSocketConnection conn)? onData, {
+    ConnectionHandler? onData, {
     Function? onError,
-    void Function()? onDone,
+    VoidCallback? onDone,
     bool? cancelOnError,
   }) =>
       _controller.stream.listen(
