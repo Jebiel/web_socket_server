@@ -141,3 +141,22 @@ class WebSocketServer extends Stream<WebSocketConnection> {
         cancelOnError: cancelOnError,
       );
 }
+
+extension HttpRequestExtensions on HttpRequest {
+  Map<String, String> get queryParameters => uri.queryParameters;
+
+  bool get isUpgradeRequest =>
+      connectionInfo != null && WebSocketTransformer.isUpgradeRequest(this);
+
+  Future<WebSocket> upgradeToWebSocket({
+    Duration? pingInterval,
+    ProtocolSelector? protocolSelector,
+    CompressionOptions compression = CompressionOptions.compressionDefault,
+  }) async =>
+      await WebSocketTransformer.upgrade(
+        this,
+        compression: compression,
+        protocolSelector: protocolSelector,
+      )
+        ..pingInterval = pingInterval;
+}
