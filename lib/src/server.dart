@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'connection.dart';
-import 'connection_info.dart';
+import 'socket.dart' as socket;
 
 typedef VoidCallback = void Function();
 typedef ProtocolSelector = dynamic Function(List<String>);
-typedef AuthCallback = bool Function(WebSocketConnectionInfo);
-typedef ConnectionHandler = void Function(WebSocketConnection conn);
+typedef AuthCallback = bool Function(HttpRequest request);
+typedef ConnectionHandler = void Function(socket.WebSocket conn);
 
-class WebSocketServer extends Stream<WebSocketConnection> {
+class WebSocketServer extends Stream<socket.WebSocket> {
   /// The maximum time that may pass without sending or receiving a message on
   /// a WebSocket connection before it is closed due to idleness.
   final Duration? idleTimeout;
@@ -37,11 +36,11 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   final AuthCallback? _authorize;
 
   /// StreamController for managing WebSocket connections
-  final _controller = StreamController<WebSocketConnection>();
+  final _controller = StreamController<socket.WebSocket>();
 
   /// This is a convenience getter for getting the [StreamController]'s stream,
   /// with or without a timeout, based on the presence of [idleTimeout].
-  Stream<WebSocketConnection> get _stream => idleTimeout == null
+  Stream<socket.WebSocket> get _stream => idleTimeout == null
       ? _controller.stream
       : _controller.stream.timeout(idleTimeout!, onTimeout: (s) => s.close());
 
@@ -102,33 +101,38 @@ class WebSocketServer extends Stream<WebSocketConnection> {
   /// upgrading them to WebSocket connections.
   void _acceptConnections() async {
     await for (final request in await _httpServer) {
-      final connectionInfo = request.connectionInfo;
-      final isUpgradeRequest = WebSocketTransformer.isUpgradeRequest(request);
-      if (isUpgradeRequest && connectionInfo != null) {
-        final webSocket = await WebSocketTransformer.upgrade(
+      // Skip all requests that are not upgrade requests.
+      if (!request.isUpgradeRequest) {
+        (request.response..statusCode = HttpStatus.forbidden).close();
+        continue;
+      }
+      // Check if the connection should be accepted.
+      // If the authorize function is null, the connection is accepted.
+      if (_authorize?.call(request) ?? true) {
+        final webSocket = socket.WebSocket(
+          await request.upgradeToWebSocket(
+            compression: compression,
+            pingInterval: pingInterval,
+            protocolSelector: _protocolSelector,
+          ),
           request,
-          compression: compression,
-          protocolSelector: _protocolSelector,
         );
-        if (pingInterval != null && Duration.zero < pingInterval!) {
-          webSocket.pingInterval = pingInterval!;
-        }
-        final connection = WebSocketConnection(webSocket, request);
-        if (_authorize == null || _authorize!(connection.info)) {
-          _controller.add(connection);
-        } else {
-          request.response.statusCode = HttpStatus.unauthorized;
-          request.response.close();
-        }
+
+        _controller.add(webSocket);
       } else {
-        request.response.statusCode = HttpStatus.forbidden;
-        request.response.close();
+        (request.response..statusCode = HttpStatus.unauthorized).close();
       }
     }
   }
 
+  // Close method for closing the WebSocketServer.
+  Future<void> close({int? code, String? reason}) async {
+    (await _httpServer).close(force: true);
+    await _controller.close();
+  }
+
   @override
-  StreamSubscription<WebSocketConnection> listen(
+  StreamSubscription<socket.WebSocket> listen(
     ConnectionHandler? onData, {
     Function? onError,
     VoidCallback? onDone,
