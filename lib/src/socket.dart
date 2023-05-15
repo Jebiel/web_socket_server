@@ -3,7 +3,7 @@ import 'dart:io' as io;
 
 import 'package:web_socket_server/src/state.dart';
 
-class WebSocket extends Stream<dynamic> with StreamSink<dynamic> {
+class WebSocket extends Stream<dynamic> implements StreamSink<dynamic> {
   WebSocket(
     io.WebSocket socket,
     io.HttpRequest request,
