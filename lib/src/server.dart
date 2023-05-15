@@ -9,6 +9,16 @@ typedef AuthCallback = bool Function(HttpRequest request);
 typedef ConnectionHandler = void Function(socket.WebSocket conn);
 
 class WebSocketServer extends Stream<socket.WebSocket> {
+  /// The port that this WebSocketServer is bound to.
+  int port;
+
+  /// The address that this WebSocketServer is bound to.
+  dynamic address;
+
+  /// The [SecurityContext] associated with this WebSocketServer, if it's a
+  /// secure server. If null, the server is not secure.
+  SecurityContext? securityContext;
+
   /// The maximum time that may pass without sending or receiving a message on
   /// a WebSocket connection before it is closed due to idleness.
   final Duration? idleTimeout;
@@ -38,6 +48,14 @@ class WebSocketServer extends Stream<socket.WebSocket> {
   /// StreamController for managing WebSocket connections
   final _controller = StreamController<socket.WebSocket>();
 
+  /// A boolean getter for determining whether or not this WebSocketServer is
+  /// secure. If [securityContext] is null, this getter returns false.
+  bool get isSecure => securityContext != null;
+
+  String get _scheme => isSecure ? 'wss' : 'ws';
+
+  String get url => '$_scheme://$address:$port';
+
   /// This is a convenience getter for getting the [StreamController]'s stream,
   /// with or without a timeout, based on the presence of [idleTimeout].
   Stream<socket.WebSocket> get _stream => idleTimeout == null
@@ -46,8 +64,8 @@ class WebSocketServer extends Stream<socket.WebSocket> {
 
   /// Constructor for creating a WebSocketServer instance.
   WebSocketServer.bind(
-    dynamic address,
-    int port, {
+    this.address,
+    this.port, {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
@@ -71,9 +89,9 @@ class WebSocketServer extends Stream<socket.WebSocket> {
   /// Constructor for creating a secure WebSocketServer instance that uses a
   /// [SecurityContext] for handling secure connections.
   WebSocketServer.bindSecure(
-    dynamic address,
-    int port,
-    SecurityContext context, {
+    this.address,
+    this.port,
+    SecurityContext this.securityContext, {
     int backlog = 0,
     bool v6Only = false,
     bool shared = false,
@@ -88,7 +106,7 @@ class WebSocketServer extends Stream<socket.WebSocket> {
         _httpServer = HttpServer.bindSecure(
           address,
           port,
-          context,
+          securityContext,
           backlog: backlog,
           v6Only: v6Only,
           shared: shared,
